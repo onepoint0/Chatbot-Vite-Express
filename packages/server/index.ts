@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import express from 'express';
 import z from 'zod';
 import type { Request, Response } from 'express';
+import { conversationRepository } from './repositories/conversation.repository';
 
 dotenv.config();
 
@@ -29,8 +30,6 @@ const chatSchema = z.object({
     conversationId: z.uuid(),
 });
 
-const conversations = new Map<string, string>();
-
 app.post('/api/chat', async (req: Request, res: Response) => {
     console.log('[api/chat] req.body ', req.body);
 
@@ -43,14 +42,15 @@ app.post('/api/chat', async (req: Request, res: Response) => {
         const maxOutput = 50;
 
         const response = await client.responses.create({
-            model: 'gpt-4o-mini!',
+            model: 'gpt-4o-mini',
             input: prompt,
             temperature: 0.2,
             max_output_tokens: maxOutput,
-            previous_response_id: conversations.get(conversationId),
+            previous_response_id:
+                conversationRepository.getLastResponseId(conversationId),
         });
 
-        conversations.set(conversationId, response.id);
+        conversationRepository.setLastResponseId(conversationId, response.id);
 
         console.log('[api/chat] response = ', response.output_text);
         res.json({ message: response.output_text });
