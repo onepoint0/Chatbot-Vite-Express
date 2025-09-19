@@ -38,20 +38,25 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
     if (!parseResult.success) res.status(400).json(parseResult.error.format());
 
-    const { prompt, conversationId } = req.body;
-    const maxOutput = 50;
-    const response = await client.responses.create({
-        model: 'gpt-4o-mini',
-        input: prompt,
-        temperature: 0.2,
-        max_output_tokens: maxOutput,
-        previous_response_id: conversations.get(conversationId),
-    });
+    try {
+        const { prompt, conversationId } = req.body;
+        const maxOutput = 50;
 
-    conversations.set(conversationId, response.id);
+        const response = await client.responses.create({
+            model: 'gpt-4o-mini!',
+            input: prompt,
+            temperature: 0.2,
+            max_output_tokens: maxOutput,
+            previous_response_id: conversations.get(conversationId),
+        });
 
-    console.log('[api/chat] response = ', response.output_text);
-    res.json({ message: response.output_text });
+        conversations.set(conversationId, response.id);
+
+        console.log('[api/chat] response = ', response.output_text);
+        res.json({ message: response.output_text });
+    } catch (error) {
+        res.status(400).json({ message: 'Failed to generate a response.' });
+    }
 });
 
 app.post('/api/hellopost', (req: Request, res: Response) => {
