@@ -20,19 +20,19 @@ type Message = {
 
 const ChatBot = () => {
     const conversationId = useRef(crypto.randomUUID());
-    const formRef = useRef<HTMLFormElement | null>(null);
+    const lastMessageRef = useRef<HTMLDivElement | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [isBotTyping, setIsBotTyping] = useState(false);
 
     useEffect(() => {
-        formRef.current?.scrollIntoView({ behavior: 'smooth' });
+        lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
     const { register, handleSubmit, reset, formState } = useForm<FormData>();
 
     const onSubmit = async ({ prompt }: FormData) => {
         console.log('on submit, prompt ', prompt);
-        reset();
+        reset({ prompt: '' });
         setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
 
         setIsBotTyping(true);
@@ -59,14 +59,14 @@ const ChatBot = () => {
         e.preventDefault();
         if (selection) e.clipboardData.setData('text/plain', selection);
     };
-
     return (
-        <div>
-            <div className="flex flex-col gap-2 mb-10">
+        <div className="flex flex-col h-full">
+            <div className="flex flex-col flex-1 gap-2 mb-10 overflow-y-auto">
                 {messages.map((m: Message, idx) => (
                     <div
                         key={idx}
                         onCopy={onCopyMessage}
+                        ref={idx === messages.length - 1 ? lastMessageRef : null}
                         className={`px-4 py-2 rounded-3xl ${m.role === 'user' ? 'bg-blue-500 text-white self-end' : 'bg-gray-200 text-black self-start'}`}
                     >
                         <ReactMarkdown>{m.content}</ReactMarkdown>
@@ -80,12 +80,13 @@ const ChatBot = () => {
                     </div>
                 )}
             </div>
-            <form ref={formRef} onSubmit={handleSubmit(onSubmit)} onKeyDown={onKeyDown} className="flex flex-col items-end gap-2 p-4 border-2 rounded-3xl">
+            <form onSubmit={handleSubmit(onSubmit)} onKeyDown={onKeyDown} className="flex flex-col items-end gap-2 p-4 border-2 rounded-3xl">
                 <textarea
                     {...register('prompt', {
                         required: true,
                         validate: (data) => data.trim().length > 0,
                     })}
+                    autoFocus
                     className="w-full border-0 focus:outline-0 resize-none"
                     placeholder="Ask anything"
                     maxLength={1000}
