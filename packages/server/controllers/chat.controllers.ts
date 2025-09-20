@@ -13,25 +13,36 @@ const chatSchema = z.object({
 
 export const chatController = {
     async sendMessage(req: Request, res: Response) {
-        console.log('[api/chat] req.body ', req.body);
+        console.log('[Controller api/chat] req.body ', req.body);
 
         const parseResult = chatSchema.safeParse(req.body);
 
-        if (!parseResult.success)
+        if (!parseResult.success) {
+            console.log('[Controller api/chat] parse body failed');
             res.status(400).json(parseResult.error.format());
+        }
 
         try {
             const { prompt, conversationId } = req.body;
             const maxOutput = 50;
 
+            console.log(
+                '[Controller api/chat] calling chat service with prompt ',
+                prompt
+            );
             const response = await chatService.sendMessage(
                 prompt,
                 conversationId,
                 maxOutput
             );
+            console.log(
+                '[Controller api/chat] got response from chat service ',
+                response
+            );
 
             res.json({ message: response.message });
         } catch (error) {
+            console.log('[Controller api/chat] - error ', error);
             res.status(400).json({ message: 'Failed to generate a response.' });
         }
     },
