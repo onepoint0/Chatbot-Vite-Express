@@ -2,7 +2,7 @@ import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import { useForm } from 'react-hook-form';
 import { FaArrowUp } from 'react-icons/fa';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from './button';
 
 type FormData = {
@@ -20,8 +20,13 @@ type Message = {
 
 const ChatBot = () => {
     const conversationId = useRef(crypto.randomUUID());
+    const formRef = useRef<HTMLFormElement | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [isBotTyping, setIsBotTyping] = useState(false);
+
+    useEffect(() => {
+        formRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
     const { register, handleSubmit, reset, formState } = useForm<FormData>();
 
@@ -76,6 +81,7 @@ const ChatBot = () => {
                 )}
             </div>
             <form
+                ref={formRef}
                 onSubmit={handleSubmit(onSubmit)}
                 onKeyDown={onKeyDown}
                 className="flex flex-col items-end gap-2 p-4 border-2 rounded-3xl"
