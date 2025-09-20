@@ -1,6 +1,6 @@
 const conversations = new Map<string, string>();
 
-export const conversationRepository = {
+export const chatRepository = {
     getLastResponseId: function (conversationId: string) {
         return conversations.get(conversationId);
     },

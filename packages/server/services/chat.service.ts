@@ -1,4 +1,4 @@
-import { conversationRepository } from '../repositories/conversation.repository';
+import { chatRepository } from '../repositories/chat.repository';
 import OpenAI from 'openai';
 
 const client = new OpenAI({
@@ -17,15 +17,15 @@ export const chatService = {
         maxOutput: number
     ): Promise<chatResponse> {
         const response = await client.responses.create({
-            model: 'gpt-4o-mini',
+            model: 'gpt-4o-mini!',
             input: prompt,
             temperature: 0.2,
             max_output_tokens: maxOutput,
             previous_response_id:
-                conversationRepository.getLastResponseId(conversationId),
+                chatRepository.getLastResponseId(conversationId),
         });
 
-        conversationRepository.setLastResponseId(conversationId, response.id);
+        chatRepository.setLastResponseId(conversationId, response.id);
 
         console.log('[api/chat] response = ', response.output_text);
 
