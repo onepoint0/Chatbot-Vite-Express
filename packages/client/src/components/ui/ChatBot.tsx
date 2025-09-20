@@ -21,6 +21,7 @@ type Message = {
 const ChatBot = () => {
     const conversationId = useRef(crypto.randomUUID());
     const [messages, setMessages] = useState<Message[]>([]);
+    const [isBotTyping, setIsBotTyping] = useState(false);
 
     const { register, handleSubmit, reset, formState } = useForm<FormData>();
 
@@ -29,12 +30,15 @@ const ChatBot = () => {
         reset();
         setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
 
+        setIsBotTyping(true);
+
         const { data } = await axios.post<ChatResponse>('/api/chat', {
             prompt,
             conversationId: conversationId.current,
         });
         console.log('returned from axios = ', data);
 
+        setIsBotTyping(false);
         setMessages((prev) => [
             ...prev,
             { content: data.message, role: 'bot' },
@@ -57,12 +61,19 @@ const ChatBot = () => {
                         className={`px-4 py-2 rounded-3xl ${
                             m.role === 'user'
                                 ? 'bg-blue-500 text-white self-end'
-                                : 'bg-gray-300 text-black self-start'
+                                : 'bg-gray-200 text-black self-start'
                         }`}
                     >
                         <ReactMarkdown>{m.content}</ReactMarkdown>
                     </div>
                 ))}
+                {isBotTyping && (
+                    <div className="px-4 py-2 rounded-3xl flex self-start gap-2 bg-gray-200">
+                        <div className="h-2 w-2 rounded-full bg-gray-800 animate-pulse"></div>
+                        <div className="h-2 w-2 rounded-full bg-gray-800 animate-pulse [animation-delay:0.2s]"></div>
+                        <div className="h-2 w-2 rounded-full bg-gray-800 animate-pulse [animation-delay:0.4s]"></div>
+                    </div>
+                )}
             </div>
             <form
                 onSubmit={handleSubmit(onSubmit)}
