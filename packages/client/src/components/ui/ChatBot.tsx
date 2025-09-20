@@ -44,10 +44,7 @@ const ChatBot = () => {
         console.log('returned from axios = ', data);
 
         setIsBotTyping(false);
-        setMessages((prev) => [
-            ...prev,
-            { content: data.message, role: 'bot' },
-        ]);
+        setMessages((prev) => [...prev, { content: data.message, role: 'bot' }]);
     };
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
@@ -57,17 +54,20 @@ const ChatBot = () => {
         }
     };
 
+    const onCopyMessage = (e: React.ClipboardEvent<HTMLDivElement>) => {
+        const selection = window.getSelection()?.toString().trim();
+        e.preventDefault();
+        if (selection) e.clipboardData.setData('text/plain', selection);
+    };
+
     return (
         <div>
             <div className="flex flex-col gap-2 mb-10">
                 {messages.map((m: Message, idx) => (
                     <div
                         key={idx}
-                        className={`px-4 py-2 rounded-3xl ${
-                            m.role === 'user'
-                                ? 'bg-blue-500 text-white self-end'
-                                : 'bg-gray-200 text-black self-start'
-                        }`}
+                        onCopy={onCopyMessage}
+                        className={`px-4 py-2 rounded-3xl ${m.role === 'user' ? 'bg-blue-500 text-white self-end' : 'bg-gray-200 text-black self-start'}`}
                     >
                         <ReactMarkdown>{m.content}</ReactMarkdown>
                     </div>
@@ -80,12 +80,7 @@ const ChatBot = () => {
                     </div>
                 )}
             </div>
-            <form
-                ref={formRef}
-                onSubmit={handleSubmit(onSubmit)}
-                onKeyDown={onKeyDown}
-                className="flex flex-col items-end gap-2 p-4 border-2 rounded-3xl"
-            >
+            <form ref={formRef} onSubmit={handleSubmit(onSubmit)} onKeyDown={onKeyDown} className="flex flex-col items-end gap-2 p-4 border-2 rounded-3xl">
                 <textarea
                     {...register('prompt', {
                         required: true,
@@ -95,10 +90,7 @@ const ChatBot = () => {
                     placeholder="Ask anything"
                     maxLength={1000}
                 />
-                <Button
-                    disabled={!formState.isValid}
-                    className="rounded-full w-9 h-9"
-                >
+                <Button disabled={!formState.isValid} className="rounded-full w-9 h-9">
                     <FaArrowUp />
                 </Button>
             </form>
