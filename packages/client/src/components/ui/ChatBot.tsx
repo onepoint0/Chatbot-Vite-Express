@@ -23,6 +23,7 @@ const ChatBot = () => {
     const lastMessageRef = useRef<HTMLDivElement | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [isBotTyping, setIsBotTyping] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -32,19 +33,26 @@ const ChatBot = () => {
 
     const onSubmit = async ({ prompt }: FormData) => {
         console.log('on submit, prompt ', prompt);
-        reset({ prompt: '' });
-        setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
+        try {
+            reset({ prompt: '' });
+            setError('');
+            setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
 
-        setIsBotTyping(true);
+            setIsBotTyping(true);
 
-        const { data } = await axios.post<ChatResponse>('/api/chat', {
-            prompt,
-            conversationId: conversationId.current,
-        });
-        console.log('returned from axios = ', data);
+            const { data } = await axios.post<ChatResponse>('/api/chat', {
+                prompt,
+                conversationId: conversationId.current,
+            });
+            console.log('returned from axios = ', data);
 
-        setIsBotTyping(false);
-        setMessages((prev) => [...prev, { content: data.message, role: 'bot' }]);
+            setMessages((prev) => [...prev, { content: data.message, role: 'bot' }]);
+        } catch (err) {
+            console.log('/api/chat error ', err);
+            setError('Something went wrong, please try again!');
+        } finally {
+            setIsBotTyping(false);
+        }
     };
 
     const onKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
@@ -79,6 +87,7 @@ const ChatBot = () => {
                         <div className="h-2 w-2 rounded-full bg-gray-800 animate-pulse [animation-delay:0.4s]"></div>
                     </div>
                 )}
+                {error && <p className="text-red-500">{error}</p>}
             </div>
             <form onSubmit={handleSubmit(onSubmit)} onKeyDown={onKeyDown} className="flex flex-col items-end gap-2 p-4 border-2 rounded-3xl">
                 <textarea
