@@ -3,7 +3,8 @@ import ReactMarkdown from 'react-markdown';
 import { useForm } from 'react-hook-form';
 import { FaArrowUp } from 'react-icons/fa';
 import { useEffect, useRef, useState } from 'react';
-import { Button } from './button';
+import { Button } from '../button';
+import TypingIndicator from './TypingIndicator';
 
 type FormData = {
     prompt: string;
@@ -80,13 +81,7 @@ const ChatBot = () => {
                         <ReactMarkdown>{m.content}</ReactMarkdown>
                     </div>
                 ))}
-                {isBotTyping && (
-                    <div className="px-4 py-2 rounded-3xl flex self-start gap-2 bg-gray-200">
-                        <div className="h-2 w-2 rounded-full bg-gray-800 animate-pulse"></div>
-                        <div className="h-2 w-2 rounded-full bg-gray-800 animate-pulse [animation-delay:0.2s]"></div>
-                        <div className="h-2 w-2 rounded-full bg-gray-800 animate-pulse [animation-delay:0.4s]"></div>
-                    </div>
-                )}
+                {isBotTyping && <TypingIndicator />}
                 {error && <p className="text-red-500">{error}</p>}
             </div>
             <form onSubmit={handleSubmit(onSubmit)} onKeyDown={onKeyDown} className="flex flex-col items-end gap-2 p-4 border-2 rounded-3xl">
