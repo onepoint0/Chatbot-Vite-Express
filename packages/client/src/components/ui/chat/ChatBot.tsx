@@ -4,10 +4,18 @@ import TypingIndicator from './TypingIndicator';
 import type { Message } from './ChatMessages';
 import ChatMessages from './ChatMessages';
 import ChatInput, { type ChatFormData } from './ChatInput';
+import popSound from '@/assets/sounds/pop.mp3';
+import notificationSound from '@/assets/sounds/notification.mp3';
 
 type ChatResponse = {
     message: string;
 };
+
+const popAudio = new Audio(popSound);
+popAudio.volume = 0.2;
+
+const notificationAudio = new Audio(notificationSound);
+notificationAudio.volume = 0.2;
 
 const ChatBot = () => {
     const conversationId = useRef(crypto.randomUUID());
@@ -21,6 +29,8 @@ const ChatBot = () => {
             setError('');
             setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
 
+            popAudio.play();
+
             setIsBotTyping(true);
 
             const { data } = await axios.post<ChatResponse>('/api/chat', {
@@ -31,6 +41,7 @@ const ChatBot = () => {
             console.log('returned from axios = ', data);
 
             setMessages((prev) => [...prev, { content: data.message, role: 'bot' }]);
+            notificationAudio.play();
         } catch (err) {
             console.log('/api/chat error ', err);
             setError('Something went wrong, please try again!');
@@ -40,7 +51,7 @@ const ChatBot = () => {
     };
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full md:max-w-5xl m-auto">
             <div className="flex flex-col flex-1 gap-2 mb-10 overflow-y-auto">
                 <ChatMessages messages={messages} />
                 {isBotTyping && <TypingIndicator />}
