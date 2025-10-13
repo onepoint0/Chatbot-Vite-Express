@@ -1,0 +1,11 @@
+@baseUrl = http://localhost:3000
+GET {{baseUrl}}
+
+####
+POST {{baseUrl}}/api/chat
+Content-Type: application/json
+
+{
+    "prompt": "hello can you hear me? :D",
+    "conversationId": "123e4567-e89b-12d3-a456-426614174000"
+}

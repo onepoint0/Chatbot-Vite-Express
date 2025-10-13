@@ -16,14 +16,14 @@ export const chatController = {
         if (!parseResult.success) {
             console.log('[Controller api/chat] parse body failed');
             res.status(400).json(parseResult.error.format());
+            return;
         }
 
         try {
             const { prompt, conversationId } = req.body;
-            const maxOutput = 100;
 
             console.log('[Controller api/chat] calling chat service with prompt ', prompt);
-            const response = await chatService.sendMessage(prompt, conversationId, maxOutput);
+            const response = await chatService.sendMessage(prompt, conversationId);
             console.log('[Controller api/chat] got response from chat service ', response);
 
             res.json({ message: response.message });
