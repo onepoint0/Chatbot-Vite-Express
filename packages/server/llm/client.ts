@@ -4,7 +4,7 @@ const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-type GenerateTextType = {
+type GenerateTextOptions = {
     model?: string;
     prompt: string;
     temperature?: number;
@@ -13,8 +13,13 @@ type GenerateTextType = {
     prevResponseId: string | undefined;
 };
 
+type GenerateTextOutput = {
+    id: string;
+    message: string;
+};
+
 export const llmClient = {
-    async generateText({ model = 'gpt-4o-mini', prompt, temperature = 0.2, instructions = '', maxTokens = 100, prevResponseId }: GenerateTextType) {
+    async generateText({ model = 'gpt-4o-mini', prompt, temperature = 0.2, instructions = '', maxTokens = 100, prevResponseId }: GenerateTextOptions): Promise<GenerateTextOutput> {
         const response = await client.responses.create({
             model,
             input: prompt,
